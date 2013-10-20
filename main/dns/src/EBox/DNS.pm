@@ -241,7 +241,9 @@ sub domains
             name  => $row->valueByName('domain'),
             dynamic => $row->valueByName('dynamic'),
             samba => $row->valueByName('samba'),
-            managed => $row->valueByName('managed')
+            managed => $row->valueByName('managed'),
+            isMaster => row->valueByName('isMaster'),
+            isSlave => row->valueByName('isSlave')
         };
         push @{$array}, $domaindata;
     }
@@ -1370,9 +1372,17 @@ sub _completeDomain # (domainId)
     $domdata->{dynamic} = $row->valueByName('dynamic');
     $domdata->{samba} = $row->valueByName('samba');
     $domdata->{'tsigKey'} = $row->valueByName('tsigKey');
+    $domdata->{'isMaster'} = $row->valueByName('isMaster');
+    $domdata->{'isSlave'} = $row->valueByName('isSlave');
 
     $domdata->{'ipAddresses'} = $self->_domainIpAddresses(
         $row->subModel('ipAddresses'));
+    
+    $domdata->{'masterIPAddresses'} = $self->_domainIpAddresses(
+        $row->subModel('masterIPAddresses'));
+    
+    $domdata->{'slaveIPAddresses'} = $self->_domainIpAddresses(
+        $row->subModel('slaveIPAddresses'));
 
     $domdata->{'hosts'} = $self->_hostnames(
         $row->subModel('hostnames'));

@@ -652,41 +652,38 @@ sub _table
             # Is this master domain (set to true as default value)
             new EBox::Types::Boolean(
                 fieldName => 'isMaster',
-                printableName => __("Master name server?"),
+                printableName => __("Master Zone"),
                 editable => 1,
                 optional => 0,
                 defaultValue => 1,
                 hidden => 0,
-                help => __("Choose yes if this is going to be a master name server"),
+                help => __("Choose yes if this is going to be a master name server for this domain"),
             ),
-            
-            # Is this slave domain (set to false as default value)
-            new EBox::Types::Boolean(
-                fieldName => 'isSlave',
-                printableName => __("Slave name server?"),
-                editable => 1,
-                optional => 0,
-                defaultValue => 0,
-                hidden => 0,
-                help => __("Choose yes if this is going to be a slave name server"),
-            ),
-            
             # Slave IP Addresses
             new EBox::Types::HasMany
                             (
                                 'fieldName' => 'slaveIPAddresses',
-                                'printableName' => __("Domain Slave IP Addresses"),
+                                'printableName' => __("Slave Servers"),
                                 'foreignModel' => 'DomainIpTable',
                                 'view' => '/DNS/View/DomainIpTable',
                                 'backView' => '/DNS/View/DomainTable',
                                 'size' => '1',
             ),
-                            
+            # Is this slave domain (set to false as default value)
+            new EBox::Types::Boolean(
+                fieldName => 'isSlave',
+                printableName => __("Slave Zone"),
+                editable => 1,
+                optional => 0,
+                defaultValue => 0,
+                hidden => 0,
+                help => __("Choose yes if this is going to be a slave name server for this domain"),
+            ),
             # Master IP Addresses
             new EBox::Types::HasMany
                             (
                                 'fieldName' => 'masterIPAddresses',
-                                'printableName' => __("Domain Master IP Addresses"),
+                                'printableName' => __("Master Servers"),
                                 'foreignModel' => 'DomainIpTable',
                                 'view' => '/DNS/View/DomainIpTable',
                                 'backView' => '/DNS/View/DomainTable',

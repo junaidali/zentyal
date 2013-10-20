@@ -59,7 +59,11 @@ dlz "AD DNS Zone" {
 %   next if (defined $sambaZones and
 %            lc ($dom->{name}) eq any @{$sambaZones});
 zone "<% $dom->{name} %>." IN {
+%       if ($dom->{isMaster}) {
     type master;
+%} elsif ($dom->{isSlave}) {
+    type slave;
+%}
 %       if ($dom->{dynamic}) {
     file "<% $dynamicConfDir %>/db.<% $dom->{'name'} %>";
 %       } else {

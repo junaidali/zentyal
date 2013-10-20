@@ -63,6 +63,10 @@ use MIME::Base64;
 #   hostnames   - (optional) Array ref containing host information with the
 #                            same format than addHost method
 #   readOnly    - (optional)
+#   isMaster    - (optional) Is the domain a master domain. Defaults to true
+#   isSlave     - (optional) Is the domain a slave domain. Defaults to false
+#   masterIPAddresses - A list of ipAddresses for the master. This is a required field if it is slave domain. It is optional field for master domains
+#   slaveIPAddresses    -   (optional)  A list of ipAddress of slaves.
 #
 # Example:
 #
@@ -72,7 +76,11 @@ use MIME::Base64;
 #                   { name     => 'bar',
 #                     ipAddresses => ['192.168.1.254', '192.168.2.254'],
 #                     aliases  => ['bar', 'b4r'],
-#                     readonly => 0
+#                     readonly => 0,
+#                     isMaster => 1,
+#                     isSlave => 0,
+#                     masterIPAddresses => [],
+#                     slaveIPAddresses => ['192.168.1.254']
 #                   }
 #                  ]
 #
@@ -88,7 +96,9 @@ sub addDomain
     EBox::debug("Adding DNS domain $domainName");
     my $id = $self->addRow(domain => $domainName,
                            type => $params->{type},
-                           readOnly => $params->{readOnly});
+                           readOnly => $params->{readOnly},
+                           isMaster => $params->{isMaster},
+                           isSlave => $params->{isSlave});
 
     unless (defined ($id)) {
         throw EBox::Exceptions::Internal("Couldn't add domain's name: $domainName");
@@ -99,6 +109,24 @@ sub addDomain
         my $ipModel = $domainRow->subModel('ipAddresses');
         foreach my $ip (@{$params->{ipAddresses}}) {
             $ipModel->addRow(ip => $ip);
+        }
+    }
+    
+    if (exists $params->{masterIPAddresses}) {
+        # Add to list of masters
+        my $domainRow = $self->_getDomainRow($domainName);
+        my $masterIPAddressesModel = $domainRow->subModel('masterIPAddresses');
+        foreach my $ip (@{$params->{masterIPAddresses}}) {
+            $masterIPAddressesModel->addRow(ip => $ip);
+        }
+    }
+    
+    if (exists $params->{slaveIPAddresses}) {
+        # Add to list of slaves
+        my $domainRow = $self->_getDomainRow($domainName);
+        my $slaveIPAddressesModel = $domainRow->subModel('slaveIPAddresses');
+        foreach my $ip (@{$params->{slaveIPAddresses}}) {
+            $slaveIPAddressesModel->addRow(ip => $ip);
         }
     }
 
@@ -619,6 +647,50 @@ sub _table
                 optional => 0,
                 defaultValue => 0,
                 hidden => 1,
+            ),
+            
+            # Is this master domain (set to true as default value)
+            new EBox::Types::Boolean(
+                fieldName => 'isMaster',
+                printableName => __("Master name server?"),
+                editable => 1,
+                optional => 0,
+                defaultValue => 1,
+                hidden => 0,
+                help => __("Choose yes if this is going to be a master name server"),
+            ),
+            
+            # Is this slave domain (set to false as default value)
+            new EBox::Types::Boolean(
+                fieldName => 'isSlave',
+                printableName => __("Slave name server?"),
+                editable => 1,
+                optional => 0,
+                defaultValue => 0,
+                hidden => 0,
+                help => __("Choose yes if this is going to be a slave name server"),
+            ),
+            
+            # Slave IP Addresses
+            new EBox::Types::HasMany
+                            (
+                                'fieldName' => 'slaveIPAddresses',
+                                'printableName' => __("Domain Slave IP Addresses"),
+                                'foreignModel' => 'DomainIpTable',
+                                'view' => '/DNS/View/DomainIpTable',
+                                'backView' => '/DNS/View/DomainTable',
+                                'size' => '1',
+            ),
+                            
+            # Master IP Addresses
+            new EBox::Types::HasMany
+                            (
+                                'fieldName' => 'masterIPAddresses',
+                                'printableName' => __("Domain Master IP Addresses"),
+                                'foreignModel' => 'DomainIpTable',
+                                'view' => '/DNS/View/DomainIpTable',
+                                'backView' => '/DNS/View/DomainTable',
+                                'size' => '1',
             ),
           );
 

@@ -242,8 +242,8 @@ sub domains
             dynamic => $row->valueByName('dynamic'),
             samba => $row->valueByName('samba'),
             managed => $row->valueByName('managed'),
-            isMaster => row->valueByName('isMaster'),
-            isSlave => row->valueByName('isSlave')
+            isMaster => $row->valueByName('isMaster'),
+            isSlave => $row->valueByName('isSlave')
         };
         push @{$array}, $domaindata;
     }

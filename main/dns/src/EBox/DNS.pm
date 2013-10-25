@@ -243,7 +243,9 @@ sub domains
             samba => $row->valueByName('samba'),
             managed => $row->valueByName('managed'),
             isMaster => $row->valueByName('isMaster'),
-            isSlave => $row->valueByName('isSlave')
+            isSlave => $row->valueByName('isSlave'),
+            masterIPAddresses => $row->subModel('masterIPAddresses'),
+            slaveIPAddresses => $row->subModel('slaveIPAddresses')
         };
         push @{$array}, $domaindata;
     }

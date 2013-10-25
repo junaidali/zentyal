@@ -56,25 +56,25 @@ dlz "AD DNS Zone" {
 % }
 
 % foreach my $dom (@domains) {
-%my $masterIpString = '';
-%my $slaveIpString = '';
+% my $masterIpString = "";
+% my $slaveIpString = "";
 % if (defined $dom) {
 %   my @masterIps = @{$dom->{masterIPAddresses}};
 %   my @slaveIps = @{$dom->{slaveIPAddresses}};
-%   my $masterIpString = join(', ', @masterIps);
-%   my $slaveIpString = join(', ', @slaveIps);   
+%   my $masterIpString = join('; ', @masterIps);
+%   my $slaveIpString = join('; ', @slaveIps);   
 %}
 %   next if (defined $sambaZones and
 %            lc ($dom->{name}) eq any @{$sambaZones});
 zone "<% $dom->{name} %>." IN {
 %       if ($dom->{isMaster}) {
     type master;
-    allow-transfer {$slaveIpString};
-    allow-update {$slaveIpString};
-    allow-notify {$slaveIpString};
+    allow-transfer {<% $slaveIpString %>};
+    allow-update {<% $slaveIpString %>};
+    allow-notify {<% $slaveIpString %>};
 %} elsif ($dom->{isSlave}) {
     type slave;
-    masters {$masterIpString};
+    masters {<% $masterIpString %>};
 %}
 %       if ($dom->{dynamic}) {
     file "<% $dynamicConfDir %>/db.<% $dom->{'name'} %>";

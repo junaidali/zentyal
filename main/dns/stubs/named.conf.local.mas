@@ -59,24 +59,36 @@ dlz "AD DNS Zone" {
 % my $masterIpString = "";
 % my $slaveIpString = "";
 % if (defined $dom) {
-%   my @masterIps = @{$dom->{masterIPAddresses}};
-%   my @slaveIps = @{$dom->{slaveIPAddresses}};
-%   my $masterIpString = join('; ', @masterIps);
-%   my $slaveIpString = join('; ', @slaveIps);   
+% 	if (defined $dom->{masterIPAddresses}) {
+%		if (ref($dom->{masterIPAddresses} eq 'ARRAY')) {
+%	   		my @masterIps = @{$dom->{masterIPAddresses}};
+%			$masterIpString = join("; ", @masterIps);
+%		}
+%	}
+%       if (defined $dom->{slaveIPAddresses}) {
+%               if (ref($dom->{slaveIPAddresses} eq 'ARRAY')) {
+%                       my @slaveIps = @{$dom->{slaveIPAddresses}};
+%                       $slaveIpString = join("; ", @slaveIps);
+%               }
+%       }
 %}
 %   next if (defined $sambaZones and
 %            lc ($dom->{name}) eq any @{$sambaZones});
 zone "<% $dom->{name} %>." IN {
 %       if ($dom->{isMaster}) {
     type master;
+% if (length($slaveIpString) > 0) {
     allow-transfer {<% $slaveIpString %>};
     allow-update {<% $slaveIpString %>};
     allow-notify {<% $slaveIpString %>};
+%}
 %} elsif ($dom->{isSlave}) {
     type slave;
+% if (length($masterIpString) > 0) {
     masters {<% $masterIpString %>};
 %}
-%       if ($dom->{dynamic}) {
+%}
+% if ($dom->{dynamic}) {
     file "<% $dynamicConfDir %>/db.<% $dom->{'name'} %>";
 %       } else {
     file "<% $confDir %>/db.<% $dom->{'name'} %>";

@@ -1,5 +1,6 @@
 <%args>
     @domains
+    @domaindata
     @inaddrs
     @intnets
     @internalLocalNets => ()
@@ -55,7 +56,7 @@ dlz "AD DNS Zone" {
 };
 % }
 
-% foreach my $dom (@domains) {
+% foreach my $dom (@domaindata) {
 % my $masterIpString = "";
 % my $slaveIpString = "";
 % if (defined $dom) {
